@@ -1,0 +1,438 @@
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>能登衆音楽コレクションのブログ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MongoDB Realm Web SDK -->
+    <script src="https://services.cloud.mongodb.com/groups/63d0b8b3f2d5a6b7c8d9e0f1/apps/63d0b8b3f2d5a6b7c8d9e0f2/sdk/js/bundle.js"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- ナビゲーションバー -->
+    <nav class="bg-gradient-to-r from-red-700 to-red-600 shadow-lg p-4 sticky top-0 z-50">
+      <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <h1
+          class="text-xl font-bold text-white cursor-pointer"
+          onclick="showScreen('display-screen'); closeMenu()"
+        >
+          🎵 能登衆音楽コレクション
+        </h1>
+        <!-- ハンバーグメニューボタン -->
+        <button
+          onclick="toggleMenu()"
+          class="text-white text-2xl md:hidden"
+          id="hamburger-btn"
+        >
+          ☰
+        </button>
+        <!-- デスクトップメニュー -->
+        <div class="hidden md:flex space-x-2">
+          <button
+            onclick="showScreen('display-screen')"
+            class="px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 rounded transition"
+          >
+            表示画面
+          </button>
+          <button
+            onclick="showScreen('input-screen')"
+            class="px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 rounded transition"
+          >
+            入力画面
+          </button>
+          <button
+            onclick="showScreen('register-screen')"
+            class="px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 rounded transition"
+          >
+            ユーザ登録
+          </button>
+          <a
+            href="https://beatle-noto-ogi.figma.site"
+            target="_blank"
+            class="px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 rounded transition inline-block"
+          >
+            🎵 音楽コレクション
+          </a>
+        </div>
+      </div>
+      <!-- モバイルメニュー -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-red-600 mt-2 rounded-lg overflow-hidden"
+      >
+        <button
+          onclick="showScreen('display-screen'); closeMenu()"
+          class="block w-full text-left px-4 py-2 text-white hover:bg-red-700 transition"
+        >
+          表示画面
+        </button>
+        <button
+          onclick="showScreen('input-screen'); closeMenu()"
+          class="block w-full text-left px-4 py-2 text-white hover:bg-red-700 transition"
+        >
+          入力画面
+        </button>
+        <button
+          onclick="showScreen('register-screen'); closeMenu()"
+          class="block w-full text-left px-4 py-2 text-white hover:bg-red-700 transition"
+        >
+          ユーザ登録
+        </button>
+        <a
+          href="https://beatle-noto-ogi.figma.site"
+          target="_blank"
+          class="block px-4 py-2 text-white hover:bg-red-700 transition"
+        >
+          🎵 音楽コレクション
+        </a>
+      </div>
+    </nav>
+
+    <!-- メインコンテンツ領域 -->
+    <main class="max-w-4xl mx-auto p-4 mt-6">
+      <!-- 1. 表示画面 -->
+      <section id="display-screen" class="screen">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold border-b-4 border-red-600 pb-2 flex-1">記事一覧</h2>
+          <button
+            onclick="scrollToTop()"
+            class="text-2xl text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition"
+            title="トップに戻る"
+          >
+            ⬆️
+          </button>
+        </div>
+        <div id="blog-posts" class="space-y-4"></div>
+      </section>
+
+      <!-- 2. 入力画面 -->
+      <section id="input-screen" class="screen hidden">
+        <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto border-t-4 border-red-600">
+          <h2 class="text-2xl font-bold mb-4 text-gray-700">新規記事投稿</h2>
+          <form id="post-form" onsubmit="handlePost(event)">
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1">タイトル</label>
+              <input
+                type="text"
+                id="post-title"
+                required
+                class="w-full p-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1">本文</label>
+              <textarea
+                id="post-content"
+                rows="5"
+                required
+                class="w-full p-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 transition"
+            >
+              投稿する
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 3. ユーザ登録画面 -->
+      <section id="register-screen" class="screen hidden">
+        <div class="bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto border-t-4 border-red-600">
+          <h2 class="text-2xl font-bold mb-4 text-gray-700 text-center">
+            ユーザ登録
+          </h2>
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1">ユーザー名</label>
+              <input
+                type="text"
+                id="reg-username"
+                required
+                class="w-full p-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1"
+                >メールアドレス</label
+              >
+              <input
+                type="email"
+                id="reg-email"
+                required
+                class="w-full p-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+              />
+            </div>
+            <div class="mb-6">
+              <label class="block text-sm font-semibold mb-1">パスワード</label>
+              <input
+                type="password"
+                id="reg-password"
+                required
+                class="w-full p-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 transition"
+            >
+              登録する
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+      const defaultPosts = [
+        {
+          title: "最初のブログ投稿",
+          content: "これはテスト投稿です。入力画面から新しい記事を追加できます。",
+        },
+        {
+          title: "モバイル完全対応になりました！",
+          content: "iPhone・Androidでプライベートモード使用時でも完全に動作します。",
+        },
+      ];
+
+      // ========== API 連携 ==========
+      const API_URL = 'http://localhost:3000/api';
+      
+      let posts = [];
+
+      // ローカルストレージ（フォールバック）
+      function loadFromLocalStorage() {
+        try {
+          const stored = localStorage.getItem("blog_posts");
+          posts = stored ? JSON.parse(stored) : defaultPosts;
+          console.log("✓ ローカルストレージから記事を取得:", posts);
+          return true;
+        } catch (e) {
+          console.error("ローカルストレージ読込エラー:", e);
+          posts = defaultPosts;
+          return false;
+        }
+      }
+
+      function saveToLocalStorage() {
+        try {
+          localStorage.setItem("blog_posts", JSON.stringify(posts));
+          console.log("✓ ローカルストレージに記事を保存");
+          return true;
+        } catch (e) {
+          console.error("ローカルストレージ保存エラー:", e);
+          return false;
+        }
+      }
+
+      // MongoDBからデータを取得
+      async function loadPostsFromAPI() {
+        try {
+          const response = await fetch(`${API_URL}/posts`);
+          if (!response.ok) throw new Error('API エラー');
+          
+          const data = await response.json();
+          posts = data && data.length > 0 ? data : defaultPosts;
+          console.log("✓ MongoDBから記事を取得:", posts);
+          renderPosts();
+          return true;
+        } catch (error) {
+          console.warn("⚠ API接続失敗、ローカルストレージを使用:", error.message);
+          loadFromLocalStorage();
+          renderPosts();
+          return false;
+        }
+      }
+
+      // MongoDBに記事を保存
+      async function savePostToAPI(title, content) {
+        try {
+          const response = await fetch(`${API_URL}/posts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content })
+          });
+          
+          if (!response.ok) throw new Error('投稿エラー');
+          const newPost = await response.json();
+          posts.unshift(newPost);
+          console.log("✓ MongoDBに記事を保存:", newPost);
+          renderPosts();
+          return true;
+        } catch (error) {
+          console.warn("⚠ API保存失敗、ローカルストレージを使用:", error.message);
+          posts.unshift({ title, content, createdAt: new Date() });
+          saveToLocalStorage();
+          renderPosts();
+          return false;
+        }
+      }
+
+      // MongoDBから記事を削除
+      async function deletePostFromAPI(postId) {
+        try {
+          const response = await fetch(`${API_URL}/posts/${postId}`, {
+            method: 'DELETE'
+          });
+          
+          if (!response.ok) throw new Error('削除エラー');
+          posts = posts.filter(p => p._id !== postId);
+          console.log("✓ MongoDBから記事を削除:", postId);
+          renderPosts();
+          return true;
+        } catch (error) {
+          console.warn("⚠ API削除失敗、ローカルストレージを使用:", error.message);
+          const index = posts.findIndex(p => p._id === postId);
+          if (index >= 0) {
+            posts.splice(index, 1);
+            saveToLocalStorage();
+            renderPosts();
+          }
+          return false;
+        }
+      }
+
+      // 初期化
+      async function initialize() {
+        console.log("ブログアプリを初期化しています...");
+        await loadPostsFromAPI();
+      }
+
+      // ハンバーグメニューの表示/非表示
+      function toggleMenu() {
+        const menu = document.getElementById("mobile-menu");
+        menu.classList.toggle("hidden");
+      }
+
+      // メニューを閉じる
+      function closeMenu() {
+        document.getElementById("mobile-menu").classList.add("hidden");
+      }
+
+      // トップにスクロール
+      function scrollToTop() {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo(0, 0);
+        console.log("トップへスクロール実行");
+      }
+
+      // 画面切り替え関数
+      function showScreen(screenId) {
+        document.querySelectorAll(".screen").forEach((screen) => {
+          screen.classList.add("hidden");
+        });
+        document.getElementById(screenId).classList.remove("hidden");
+
+        if (screenId === "display-screen") {
+          renderPosts();
+        }
+      }
+
+      // 記事一覧を表示画面に描画する関数
+      function renderPosts() {
+        const postsContainer = document.getElementById("blog-posts");
+        console.log("記事を描画:", posts);
+        
+        if (posts.length === 0) {
+          postsContainer.innerHTML =
+            '<p class="text-gray-500 text-center py-8">記事がありません。</p>';
+          return;
+        }
+
+        // 各記事に削除ボタンを追加
+        postsContainer.innerHTML = posts
+          .map(
+            (post, index) => `
+              <article class="bg-white p-6 rounded-lg shadow-md flex justify-between items-start gap-4 border-l-4 border-red-600 hover:shadow-lg transition">
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">${escapeHtml(post.title)}</h3>
+                  <p class="text-gray-700 whitespace-pre-wrap">${escapeHtml(post.content)}</p>
+                </div>
+                <button class="delete-btn text-sm font-medium text-red-600 hover:text-red-800 cursor-pointer hover:bg-red-50 px-2 py-1 rounded transition whitespace-nowrap" data-index="${index}">削除</button>
+              </article>
+            `,
+          )
+          .join("");
+
+        // 削除ボタンにイベントリスナーを追加
+        document.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const index = parseInt(this.getAttribute("data-index"));
+            promptDeletePost(index);
+          });
+        });
+      }
+
+      // 新規記事投稿の処理
+      async function handlePost(event) {
+        event.preventDefault();
+
+        const title = document.getElementById("post-title").value;
+        const content = document.getElementById("post-content").value;
+
+        if (!title.trim() || !content.trim()) {
+          alert("タイトルと本文を入力してください。");
+          return;
+        }
+
+        await savePostToAPI(title, content);
+        document.getElementById("post-form").reset();
+        alert("記事を投稿しました！");
+        showScreen("display-screen");
+      }
+
+      // 記事削除の処理（パスワード確認付き）
+      async function promptDeletePost(index) {
+        const password = prompt("記事を削除するには、管理者パスワードを入力してください:");
+        if (password === null) {
+          return;
+        }
+        
+        if (password !== "notosyuusakujyo") {
+          alert("パスワードが正確ではありません。");
+          return;
+        }
+
+        if (confirm("この記事を削除してもよろしいですか？")) {
+          const postToDelete = posts[index];
+          await deletePostFromAPI(postToDelete._id);
+          alert("記事を削除しました。");
+        }
+      }
+
+      // ユーザ登録の処理
+      function handleRegister(event) {
+        event.preventDefault();
+        const username = document.getElementById("reg-username").value;
+        alert(`ユーザー「${username}」の登録が完了しました！`);
+        document.getElementById("register-form").reset();
+        showScreen("display-screen");
+      }
+
+      // セキュリティ対策（XSS防止用のエスケープ処理）
+      function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, (match) => {
+          const escape = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          };
+          return escape[match];
+        });
+      }
+
+      // 初期読み込み時に記事を表示123
+      window.addEventListener("DOMContentLoaded", initialize);
+    
+    </script>
+  </body>
+</html>
