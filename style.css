@@ -1,0 +1,12 @@
+/* 背景色と文字色の変更 */
+body {
+    background-color:#333333 #a7cd6d; /* 薄い青 */
+    color: #333333;           /* 濃いグレー */
+}
+
+/* 見出しのデザイン */
+h1 {
+    color: #0f0f11;           /* トマト色 */
+    font-size: 32px;
+    text-align: center;       /* 中央揃え */
+}
